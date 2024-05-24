@@ -23,7 +23,7 @@ func HandleConn(conn net.Conn) {
 	if req.URL.Path == "/" {
 		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
 	} else if req.URL.Path[:6] == "/echo/" {
-		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n%s", req.URL.Path[6:])
+		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(req.URL.Path[6:]), req.URL.Path[6:])
 		conn.Write([]byte(respString))
 	} else {
 		// log.Println(req.URL.Path[:7])
