@@ -19,9 +19,14 @@ func HandleConn(conn net.Conn) {
 	}
 	// log.Println(buf)
 	// if strings.HasPrefix(stri)
+
 	if req.URL.Path == "/" {
 		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+	} else if req.URL.Path[:6] == "/echo/" {
+		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n%s", req.URL.Path[6:])
+		conn.Write([]byte(respString))
 	} else {
+		// log.Println(req.URL.Path[:7])
 		conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 	}
 }
