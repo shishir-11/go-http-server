@@ -33,6 +33,7 @@ func HandleConn(conn net.Conn, dir string) {
 
 		// }
 		// log.Println(req.Header["Accept-Encoding"])
+		log.Println("Siuu")
 		if req.Header["Accept-Encoding"][0] == "gzip" {
 			customHeaders += "Content-Encoding: gzip\r\n"
 		}
