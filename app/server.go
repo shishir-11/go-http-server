@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	// Uncomment this block to pass the first stage
 	"net"
@@ -30,6 +32,29 @@ func HandleConn(conn net.Conn) {
 		log.Println(cont[0])
 		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(cont[0]), cont[0])
 		conn.Write([]byte(respString))
+	} else if strings.HasPrefix(req.URL.Path, "/files/") {
+
+		path := req.URL.Path
+		if strings.HasPrefix(path, "/files/") {
+
+			directory := os.Args[2]
+
+			fileName := strings.TrimPrefix(path, "/files/")
+
+			data, err := os.ReadFile(directory + fileName)
+
+			if err != nil {
+
+				conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
+
+			} else {
+
+				conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + strconv.Itoa(len(data)) + "\r\n\r\n" + string(data) + "\r\n\r\n"))
+
+			}
+
+		}
+
 	} else {
 		// log.Println(req.URL.Path[:7])
 		conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
