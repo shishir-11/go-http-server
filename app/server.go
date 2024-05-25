@@ -34,7 +34,9 @@ func HandleConn(conn net.Conn, dir string) {
 		// }
 		// log.Println(req.Header["Accept-Encoding"])
 		log.Println(req.Header["Accept-Encoding"])
-		for _, element := range req.Header["Accept-Encoding"] {
+		for _, element := range strings.Split(req.Header["Accept-Encoding"][0], ", ") {
+			// log.Println(i)
+
 			if element == "gzip" {
 				customHeaders += "Content-Encoding: gzip\r\n"
 			}
