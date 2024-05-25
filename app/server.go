@@ -25,6 +25,14 @@ func HandleConn(conn net.Conn) {
 	} else if len(req.URL.Path) > 6 && req.URL.Path[:6] == "/echo/" {
 		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(req.URL.Path[6:]), req.URL.Path[6:])
 		conn.Write([]byte(respString))
+	} else if len(req.URL.Path) >= 11 && req.URL.Path[:11] == "/user-agent" {
+		cont := req.Header["User-Agent"]
+		// log.Printf("%T", cont)
+		// log.Println(len(cont))
+		// log.Println(strings.Split(cont, "["))
+		log.Println(cont[0])
+		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(cont[0]), cont[0])
+		conn.Write([]byte(respString))
 	} else {
 		// log.Println(req.URL.Path[:7])
 		conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
