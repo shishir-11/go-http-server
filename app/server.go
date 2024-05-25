@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -14,7 +15,7 @@ import (
 	"os"
 )
 
-func HandleConn(conn net.Conn) {
+func HandleConn(conn net.Conn, dir string) {
 	defer conn.Close()
 	req, err := http.ReadRequest(bufio.NewReader(conn))
 	if err != nil {
@@ -50,7 +51,7 @@ func HandleConn(conn net.Conn) {
 					return
 				}
 				// log.Println(body)
-				err = os.WriteFile(fileName, body, 0644)
+				err = os.WriteFile(dir+fileName, body, 0644)
 				if err != nil {
 					log.Printf("Unable to write file: %v", err)
 					conn.Write([]byte("HTTP/1.1 500 Internal Server Error\r\n\r\n"))
@@ -81,6 +82,8 @@ func HandleConn(conn net.Conn) {
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
+	dir := flag.String("directory", "", "")
+	flag.Parse()
 
 	// Uncomment this block to pass the first stage
 
@@ -96,7 +99,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		go HandleConn(connection)
+		go HandleConn(connection, *dir)
 	}
 
 }
