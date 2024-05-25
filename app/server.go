@@ -55,7 +55,7 @@ func HandleConn(conn net.Conn) {
 					log.Printf("Unable to write file: %v", err)
 					conn.Write([]byte("HTTP/1.1 500 Internal Server Error\r\n\r\n"))
 				}
-
+				conn.Write([]byte("HTTP/1.1 201 Created\r\n\r\n"))
 			} else {
 				data, err := os.ReadFile(directory + fileName)
 
