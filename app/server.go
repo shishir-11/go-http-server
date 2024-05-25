@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -41,15 +42,32 @@ func HandleConn(conn net.Conn) {
 
 			fileName := strings.TrimPrefix(path, "/files/")
 
-			data, err := os.ReadFile(directory + fileName)
-
-			if err != nil {
-
-				conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
+			if req.Method == "POST" {
+				body, err := io.ReadAll(req.Body)
+				if err != nil {
+					log.Printf("Unable to read body: %v", err)
+					conn.Write([]byte("HTTP/1.1 500 Internal Server Error\r\n\r\n"))
+					return
+				}
+				// log.Println(body)
+				err = os.WriteFile(fileName, body, 0644)
+				if err != nil {
+					log.Printf("Unable to write file: %v", err)
+					conn.Write([]byte("HTTP/1.1 500 Internal Server Error\r\n\r\n"))
+				}
 
 			} else {
+				data, err := os.ReadFile(directory + fileName)
 
-				conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + strconv.Itoa(len(data)) + "\r\n\r\n" + string(data) + "\r\n\r\n"))
+				if err != nil {
+
+					conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
+
+				} else {
+
+					conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + strconv.Itoa(len(data)) + "\r\n\r\n" + string(data) + "\r\n\r\n"))
+
+				}
 
 			}
 
