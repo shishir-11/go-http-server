@@ -33,10 +33,14 @@ func HandleConn(conn net.Conn, dir string) {
 
 		// }
 		// log.Println(req.Header["Accept-Encoding"])
-		// log.Println(req.Header["Accept-Encoding"])
-		if req.Header["Accept-Encoding"] != nil && req.Header["Accept-Encoding"][0] == "gzip" {
-			customHeaders += "Content-Encoding: gzip\r\n"
+		log.Println(req.Header["Accept-Encoding"])
+		for _, element := range req.Header["Accept-Encoding"] {
+			if element == "gzip" {
+				customHeaders += "Content-Encoding: gzip\r\n"
+			}
 		}
+		// if req.Header["Accept-Encoding"] != nil && req.Header["Accept-Encoding"][0] == "gzip" {
+		// }
 		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n%s\r\n%s", len(req.URL.Path[6:]), customHeaders, req.URL.Path[6:])
 		conn.Write([]byte(respString))
 	} else if len(req.URL.Path) >= 11 && req.URL.Path[:11] == "/user-agent" {
