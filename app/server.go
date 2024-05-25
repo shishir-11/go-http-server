@@ -27,9 +27,6 @@ func HandleConn(conn net.Conn) {
 		conn.Write([]byte(respString))
 	} else if len(req.URL.Path) >= 11 && req.URL.Path[:11] == "/user-agent" {
 		cont := req.Header["User-Agent"]
-		// log.Printf("%T", cont)
-		// log.Println(len(cont))
-		// log.Println(strings.Split(cont, "["))
 		log.Println(cont[0])
 		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(cont[0]), cont[0])
 		conn.Write([]byte(respString))
@@ -49,11 +46,14 @@ func main() {
 		fmt.Println("Failed to bind to port 4221")
 		os.Exit(1)
 	}
+	for {
+		connection, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
 
-	connection, err := l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
+		go HandleConn(connection)
 	}
-	go HandleConn(connection)
+
 }
