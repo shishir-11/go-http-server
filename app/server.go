@@ -26,14 +26,25 @@ func HandleConn(conn net.Conn, dir string) {
 
 	if req.URL.Path == "/" {
 		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+
 	} else if len(req.URL.Path) > 6 && req.URL.Path[:6] == "/echo/" {
-		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(req.URL.Path[6:]), req.URL.Path[6:])
+		customHeaders := ""
+		// if v,ok := req.Header["Accept-Encoding"];ok{
+
+		// }
+		// log.Println(req.Header["Accept-Encoding"])
+		if req.Header["Accept-Encoding"][0] == "gzip" {
+			customHeaders += "Content-Encoding: gzip\r\n"
+		}
+		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n%s\r\n%s", len(req.URL.Path[6:]), customHeaders, req.URL.Path[6:])
 		conn.Write([]byte(respString))
+
 	} else if len(req.URL.Path) >= 11 && req.URL.Path[:11] == "/user-agent" {
 		cont := req.Header["User-Agent"]
 		log.Println(cont[0])
 		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(cont[0]), cont[0])
 		conn.Write([]byte(respString))
+
 	} else if strings.HasPrefix(req.URL.Path, "/files/") {
 
 		path := req.URL.Path
