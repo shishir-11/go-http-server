@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"compress/gzip"
 	"flag"
 	"fmt"
 	"io"
@@ -33,6 +35,7 @@ func HandleConn(conn net.Conn, dir string) {
 
 		// }
 		// log.Println(req.Header["Accept-Encoding"])
+		message := req.URL.Path[6:]
 		log.Println(req.Header["Accept-Encoding"])
 		if req.Header["Accept-Encoding"] != nil {
 			for _, element := range strings.Split(req.Header["Accept-Encoding"][0], ", ") {
@@ -40,13 +43,22 @@ func HandleConn(conn net.Conn, dir string) {
 
 				if element == "gzip" {
 					customHeaders += "Content-Encoding: gzip\r\n"
+					buffer := new(bytes.Buffer)
+
+					gzipWriter := gzip.NewWriter(buffer)
+
+					gzipWriter.Write([]byte(message))
+
+					gzipWriter.Close()
+
+					message = buffer.String()
 				}
 			}
 		}
 
 		// if req.Header["Accept-Encoding"] != nil && req.Header["Accept-Encoding"][0] == "gzip" {
 		// }
-		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n%s\r\n%s", len(req.URL.Path[6:]), customHeaders, req.URL.Path[6:])
+		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n%s\r\n%s", len(message), customHeaders, message)
 		conn.Write([]byte(respString))
 	} else if len(req.URL.Path) >= 11 && req.URL.Path[:11] == "/user-agent" {
 		cont := req.Header["User-Agent"]
