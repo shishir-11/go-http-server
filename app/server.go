@@ -34,13 +34,16 @@ func HandleConn(conn net.Conn, dir string) {
 		// }
 		// log.Println(req.Header["Accept-Encoding"])
 		log.Println(req.Header["Accept-Encoding"])
-		for _, element := range strings.Split(req.Header["Accept-Encoding"][0], ", ") {
-			// log.Println(i)
+		if req.Header["Accept-Encoding"] != nil {
+			for _, element := range strings.Split(req.Header["Accept-Encoding"][0], ", ") {
+				// log.Println(i)
 
-			if element == "gzip" {
-				customHeaders += "Content-Encoding: gzip\r\n"
+				if element == "gzip" {
+					customHeaders += "Content-Encoding: gzip\r\n"
+				}
 			}
 		}
+
 		// if req.Header["Accept-Encoding"] != nil && req.Header["Accept-Encoding"][0] == "gzip" {
 		// }
 		respString := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n%s\r\n%s", len(req.URL.Path[6:]), customHeaders, req.URL.Path[6:])
